@@ -3,86 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Simulator</title>
-    <style>
-        /* CSS: Styling the Game Interface */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .game-container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #ff0000; /* YouTube Red */
-            margin-bottom: 20px;
-        }
-
-        .stats-box {
-            background-color: #f1f1f1;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .stat {
-            font-size: 18px;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-
-        button {
-            background-color: #ff0000;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: background 0.2s;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        button:hover {
-            background-color: #cc0000;
-        }
-
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .log-box {
-            border-top: 1px solid #ddd;
-            padding-top: 15px;
-            max-height: 150px;
-            overflow-y: auto;
-            text-align: left;
-            font-size: 14px;
-            color: #555;
-        }
-    </style>
+    <title>YouTube Creator Simulator</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- HTML: The Structure -->
     <div class="game-container">
         <h1>YouTube Simulator</h1>
         
+        <!-- Channel Metrics -->
         <div class="stats-box">
             <div class="stat">Subscribers: <span id="subs">0</span></div>
             <div class="stat">Total Views: <span id="views">0</span></div>
@@ -90,94 +19,53 @@
             <div class="stat">Videos Posted: <span id="video-count">0</span></div>
         </div>
 
+        <!-- Main Action Button -->
         <button id="upload-btn" onclick="makeVideo()">🎬 Create & Post Video</button>
 
+        <!-- Upgrades Shop Section -->
+        <div class="shop-section">
+            <h3>🎥 Gear Shop</h3>
+            <div class="shop-item">
+                <div>
+                    <strong>Better Microphone</strong><br>
+                    <small>+20% Views per video</small>
+                </div>
+                <button id="shop-mic" onclick="buyUpgrade('mic')">Buy ($50)</button>
+            </div>
+            <div class="shop-item">
+                <div>
+                    <strong>1080p Camera</strong><br>
+                    <small>+50% Views per video</small>
+                </div>
+                <button id="shop-camera" onclick="buyUpgrade('camera')">Buy ($200)</button>
+            </div>
+            <div class="shop-item">
+                <div>
+                    <strong>AI Editing Software</strong><br>
+                    <small>+100% Passive channel growth</small>
+                </div>
+                <button id="shop-software" onclick="buyUpgrade('software')">Buy ($500)</button>
+            </div>
+        </div>
+
+        <!-- Milestone Milestones Panel -->
+        <div class="milestones-section">
+            <h3>🏆 Channel Milestones</h3>
+            <div class="milestone-badge locked" id="m-100">🚫 100 Subs: Getting Started</div>
+            <div class="milestone-badge locked" id="m-1000">🚫 1,000 Subs: Partner Program</div>
+            <div class="milestone-badge locked" id="m-10000">🚫 10,000 Subs: Silver Play Button</div>
+        </div>
+
+        <!-- Interactive Activity Feed -->
         <h3>Activity Log</h3>
         <div class="log-box" id="log">
-            <p>Welcome to your channel! Click above to post your first video.</p>
+            <p>Welcome back to your creator studio.</p>
         </div>
+        
+        <!-- Utility controls -->
+        <button class="reset-btn" onclick="resetGame()">Reset Game Progress</button>
     </div>
 
-    <!-- JavaScript: The Logic -->
-    <script>
-        // Game State Variables
-        let subscribers = 0;
-        let views = 0;
-        let money = 0.00;
-        let totalVideos = 0;
-
-        // DOM Elements
-        const subsEl = document.getElementById('subs');
-        const viewsEl = document.getElementById('views');
-        const moneyEl = document.getElementById('money');
-        const videoCountEl = document.getElementById('video-count');
-        const logEl = document.getElementById('log');
-        const uploadBtn = document.getElementById('upload-btn');
-
-        // Video topics for random log messages
-        const topics = ["Gaming Let's Play", "Cooking Tutorial", "Tech Review", "Vlog", "ASMR", "Comedy Sketch"];
-
-        // Function to create and post a video
-        function makeVideo() {
-            // Disable button temporarily to prevent spamming
-            uploadBtn.disabled = true;
-            
-            // Generate random gains for this video
-            // More subscribers = higher baseline for views
-            const newViews = Math.floor(Math.random() * 100) + 10 + Math.floor(subscribers * 0.5);
-            const newSubs = Math.floor(Math.random() * (newViews * 0.1)); // ~10% of views become subs
-            const newMoney = (newViews * 0.002); // Earn $0.002 per view
-
-            // Update global state
-            views += newViews;
-            subscribers += newSubs;
-            money += newMoney;
-            totalVideos += 1;
-
-            // Pick a random topic for the log
-            const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-
-            // Update the UI
-            updateUI();
-            addLog(`Posted a <strong>${randomTopic}</strong>! It got +${newViews} views and +${newSubs} subscribers.`);
-
-            // Cooldown: Enable button again after 1.5 seconds
-            setTimeout(() => {
-                uploadBtn.disabled = false;
-            }, 1500);
-        }
-
-        // Function to update the numbers on screen
-        function updateUI() {
-            subsEl.textContent = subscribers.toLocaleString();
-            viewsEl.textContent = views.toLocaleString();
-            moneyEl.textContent = money.toFixed(2);
-            videoCountEl.textContent = totalVideos;
-        }
-
-        // Function to push updates to the activity log
-        function addLog(message) {
-            const p = document.createElement('p');
-            p.innerHTML = message;
-            logEl.insertBefore(p, logEl.firstChild); // Put newest log at the top
-        }
-
-        // Passive Income / Algorithm simulation loop (runs every 3 seconds)
-        setInterval(() => {
-            if (totalVideos > 0) {
-                // Every video continuously generates a small amount of passive views based on subscribers
-                const passiveViews = Math.floor(subscribers * 0.05) + totalVideos;
-                const passiveMoney = passiveViews * 0.002;
-
-                views += passiveViews;
-                money += passiveMoney;
-
-                updateUI();
-                if (passiveViews > 5) {
-                    addLog(`Your old videos gained +${passiveViews} passive views.`);
-                }
-            }
-        }, 3000);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
