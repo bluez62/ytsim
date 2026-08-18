@@ -16,7 +16,6 @@ let gameData = {
     }
 };
 
-// Upgrade pricing definitions
 const prices = {
     mic: 50,
     camera: 200,
@@ -31,9 +30,12 @@ const videoCountEl = document.getElementById('video-count');
 const logEl = document.getElementById('log');
 const uploadBtn = document.getElementById('upload-btn');
 
-const topics = ["Tech Unboxing", "Spicy Noodle Challenge", "Day in the Life Vlog", "Speedrun Record", "Deep Fried Recipes"];
+// NEW: Input Field DOM References
+const titleInp = document.getElementById('video-title');
+const categoryInp = document.getElementById('video-category');
+const descInp = document.getElementById('video-desc');
 
-// --- 1. LOCAL STORAGE: SAVE & LOAD LOGIC ---
+// --- LOCAL STORAGE LOGIC ---
 function saveGame() {
     localStorage.setItem('youtubeSimulatorSave', JSON.stringify(gameData));
 }
@@ -54,37 +56,57 @@ function resetGame() {
     }
 }
 
-// --- 2. GAME ACTION LOGIC ---
+// --- CORE ACTION LOGIC ---
 function makeVideo() {
+    // Read input values
+    const title = titleInp.value.trim();
+    const category = categoryInp.value;
+    const desc = descInp.value.trim();
+
+    // Form Validation: Don't let them upload an empty form
+    if (title === "" || desc === "") {
+        alert("⚠️ You must fill out both the Title and Description before uploading your video!");
+        return;
+    }
+
     uploadBtn.disabled = true;
     
-    // Calculate Multipliers based on bought items
+    // Calculate Multipliers based on equipment bought
     let viewMultiplier = 1.0;
     if (gameData.upgrades.mic) viewMultiplier += 0.20;
     if (gameData.upgrades.camera) viewMultiplier += 0.50;
 
-    // View generation math formula
+    // ALGORITHM BONUS: Rewards longer titles and descriptions (up to +30% extra views)
+    let effortBonus = 1.0;
+    if (title.length > 10) effortBonus += 0.10;
+    if (desc.length > 30) effortBonus += 0.20;
+
+    // View calculation math formula
     const baseViews = Math.floor(Math.random() * 80) + 20;
     const subInfluence = Math.floor(gameData.subscribers * 0.4);
-    const newViews = Math.floor((baseViews + subInfluence) * viewMultiplier);
+    const newViews = Math.floor((baseViews + subInfluence) * viewMultiplier * effortBonus);
     
-    // Conversions
+    // Conversion metrics
     const newSubs = Math.floor(Math.random() * (newViews * 0.12)); 
     const newMoney = (newViews * 0.0025); 
 
-    // Update global variables
+    // Update state variables
     gameData.views += newViews;
     gameData.subscribers += newSubs;
     gameData.money += newMoney;
     gameData.totalVideos += 1;
 
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
-    addLog(`🎬 Posted <strong>${randomTopic}</strong>! Got +${newViews.toLocaleString()} views, +${newSubs.toLocaleString()} subs.`);
+    // Create a personalized message log showing their actual title and category
+    addLog(`🚀 Uploaded a <strong>[${category}]</strong> video titled "<em>${title}</em>". It brought in +${newViews.toLocaleString()} views and +${newSubs.toLocaleString()} subscribers!`);
     
+    // Clear out the form text inputs for the next video
+    titleInp.value = "";
+    descInp.value = "";
+
     runChecksAndRefresh();
 
-    // 1.2 Second Cooldown time
-    setTimeout(() => { uploadBtn.disabled = false; }, 1200);
+    // 1.5 second render cooldown
+    setTimeout(() => { uploadBtn.disabled = false; }, 1500);
 }
 
 function buyUpgrade(item) {
@@ -98,31 +120,28 @@ function buyUpgrade(item) {
     } else if (gameData.upgrades[item]) {
         alert("You already own this upgrade item!");
     } else {
-        alert("Insufficient funds in your developer account!");
+        alert("Insufficient funds!");
     }
 }
 
-// --- 3. CHECKING SYSTEM ---
+// --- CHECKING SYSTEM ---
 function runChecksAndRefresh() {
     checkMilestonesLogic();
     updateUI();
-    saveGame(); // Auto-save on every vital change
+    saveGame();
 }
 
 function checkMilestonesLogic() {
-    // 100 Subscribers milestone check
     if (gameData.subscribers >= 100 && !gameData.milestones.m100) {
         gameData.milestones.m100 = true;
-        gameData.money += 50; // Cash bonus award
+        gameData.money += 50;
         addLog("🎉 <strong>Milestone!</strong> Reached 100 subs! Earned a $50 cash bonus.");
     }
-    // 1,000 Subscribers milestone check
     if (gameData.subscribers >= 1000 && !gameData.milestones.m1000) {
         gameData.milestones.m1000 = true;
         gameData.money += 250;
         addLog("🎉 <strong>Milestone!</strong> Reached 1,000 subs! Partner Program unlocked ($250 bonus).");
     }
-    // 10,000 Subscribers milestone check
     if (gameData.subscribers >= 10000 && !gameData.milestones.m10000) {
         gameData.milestones.m10000 = true;
         gameData.money += 1000;
@@ -143,14 +162,13 @@ function updateBadge(id, text) {
     el.textContent = text;
 }
 
-// --- 4. RENDER & ENGINE LOOPS ---
+// --- RENDER & ENGINE LOOPS ---
 function updateUI() {
     subsEl.textContent = gameData.subscribers.toLocaleString();
     viewsEl.textContent = gameData.views.toLocaleString();
     moneyEl.textContent = gameData.money.toFixed(2);
     videoCountEl.textContent = gameData.totalVideos;
 
-    // Toggle button shop disabled flags if bought or un-affordable
     updateShopButton('mic');
     updateShopButton('camera');
     updateShopButton('software');
@@ -177,7 +195,7 @@ function addLog(message) {
 setInterval(() => {
     if (gameData.totalVideos > 0) {
         let passiveMultiplier = 1.0;
-        if (gameData.upgrades.software) passiveMultiplier += 1.0; // doubles algorithm views
+        if (gameData.upgrades.software) passiveMultiplier += 1.0; 
 
         const passiveViews = Math.floor((Math.floor(gameData.subscribers * 0.04) + gameData.totalVideos) * passiveMultiplier);
         const passiveMoney = passiveViews * 0.0025;
@@ -186,9 +204,8 @@ setInterval(() => {
         gameData.money += passiveMoney;
 
         updateUI();
-        saveGame(); // Automated background saving
+        saveGame();
     }
 }, 4000);
 
-// Run on page launch startup
 loadGame();

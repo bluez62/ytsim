@@ -19,8 +19,27 @@
             <div class="stat">Videos Posted: <span id="video-count">0</span></div>
         </div>
 
-        <!-- Main Action Button -->
-        <button id="upload-btn" onclick="makeVideo()">🎬 Create & Post Video</button>
+        <!-- NEW: Video Production Form -->
+        <div class="studio-box">
+            <h3>🎬 Creator Studio</h3>
+            
+            <label for="video-title">Video Title:</label>
+            <input type="text" id="video-title" placeholder="e.g., I Spent 24 Hours in a Box!">
+
+            <label for="video-category">Category / Topic:</label>
+            <select id="video-category">
+                <option value="Gaming">Gaming Let's Play</option>
+                <option value="Tech">Tech Review</option>
+                <option value="Vlog">Lifestyle Vlog</option>
+                <option value="Comedy">Comedy Sketch</option>
+                <option value="Education">Educational Essay</option>
+            </select>
+
+            <label for="video-desc">Description:</label>
+            <textarea id="video-desc" rows="2" placeholder="Tell your viewers about the video..."></textarea>
+            
+            <button id="upload-btn" onclick="makeVideo()">🚀 Upload Video</button>
+        </div>
 
         <!-- Upgrades Shop Section -->
         <div class="shop-section">
@@ -48,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Milestone Milestones Panel -->
+        <!-- Milestone Panel -->
         <div class="milestones-section">
             <h3>🏆 Channel Milestones</h3>
             <div class="milestone-badge locked" id="m-100">🚫 100 Subs: Getting Started</div>
@@ -56,13 +75,12 @@
             <div class="milestone-badge locked" id="m-10000">🚫 10,000 Subs: Silver Play Button</div>
         </div>
 
-        <!-- Interactive Activity Feed -->
+        <!-- Activity Feed -->
         <h3>Activity Log</h3>
         <div class="log-box" id="log">
             <p>Welcome back to your creator studio.</p>
         </div>
         
-        <!-- Utility controls -->
         <button class="reset-btn" onclick="resetGame()">Reset Game Progress</button>
     </div>
 
