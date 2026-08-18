@@ -7,13 +7,21 @@ let gameData = {
     totalVideos: 0,
     currentTrend: "Gaming",
     upgrades: { mic: false, camera: false, software: false },
-    milestones: { m100: false, m1000: false, m10000: false, m100000: false }
+    milestones: { m100: false, m1000: false, m10000: false, m100000: false },
+    
+    // NEW: Analytics Category History Object counters
+    statsHistory: {
+        Gaming: 0,
+        Tech: 0,
+        Vlog: 0,
+        Comedy: 0,
+        Education: 0,
+        trendVideos: 0 // Counter for matching the trend
+    }
 };
 
 const prices = { mic: 50, camera: 200, software: 500 };
 const availableCategories = ["Gaming", "Tech", "Vlog", "Comedy", "Education"];
-
-// NEW: Active Sponsorship Offer Tracking Variable
 let activeSponsorDeal = null;
 
 // DOM Node References
@@ -50,20 +58,28 @@ const categoryComments = {
     Education: ["Wow, I actually learned a lot from this essay.", "Clear explanations, thanks teacher!", "Mind-blowing perspective context."]
 };
 
-// --- NEW: ONBOARDING BRANDING FUNCTIONS ---
-function submitChannelName() {
-    const textValue = nameInp.value.trim();
-    if(textValue === "") {
-        alert("Please enter a valid channel name!");
-        return;
+// NEW: Dynamic Dashboard Tab Controller Switch Function
+function switchTab(targetTab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById(`panel-${targetTab}`).classList.remove('hidden');
+    document.getElementById(`tab-${targetTab}`).classList.add('active');
+    
+    if(targetTab === 'analytics') {
+        updateAnalyticsScreen(); // Recalculate statistics values on tab view
     }
-    gameData.channelName = textValue;
-    nameModal.classList.add('hidden');
-    runChecksAndRefresh();
-    addLog(`✨ Welcome to YouTube! Your channel <strong>@${gameData.channelName}</strong> has been created.`);
 }
 
-// --- LOCAL STORAGE LOGIC ---
+function submitChannelName() {
+    const textValue = nameInp.value.trim();
+    if(textValue === "") { alert("Please enter a valid channel name!"); return; }
+    gameData.channelName = "@" + textValue;
+    nameModal.classList.add('hidden');
+    runChecksAndRefresh();
+    addLog(`✨ Welcome to YouTube! Your channel <strong>${gameData.channelName}</strong> has been created.`);
+}
+
 function saveGame() {
     localStorage.setItem('youtubeSimulatorSaveUltimate', JSON.stringify(gameData));
 }
@@ -72,12 +88,12 @@ function loadGame() {
     const savedData = localStorage.getItem('youtubeSimulatorSaveUltimate');
     if (savedData) {
         gameData = JSON.parse(savedData);
-        if(gameData.channelName) {
-            nameModal.classList.add('hidden');
+        // Safety check for legacy saves missing the new analytics object keys
+        if(!gameData.statsHistory) {
+            gameData.statsHistory = { Gaming: 0, Tech: 0, Vlog: 0, Comedy: 0, Education: 0, trendVideos: 0 };
         }
-    } else {
-        updateTrend(); 
-    }
+        if(gameData.channelName) { nameModal.classList.add('hidden'); }
+    } else { updateTrend(); }
     updateUI();
     checkMilestonesVisuals();
 }
@@ -89,31 +105,21 @@ function resetGame() {
     }
 }
 
-// --- DYNAMIC TREND SYSTEM ---
 function updateTrend() {
     const currentIndex = availableCategories.indexOf(gameData.currentTrend);
     let nextIndex;
-    do {
-        nextIndex = Math.floor(Math.random() * availableCategories.length);
-    } while (nextIndex === currentIndex);
+    do { nextIndex = Math.floor(Math.random() * availableCategories.length); } while (nextIndex === currentIndex);
     gameData.currentTrend = availableCategories[nextIndex];
 }
 
-// --- NEW: SPONSOR ENGINE MANAGEMENT FUNCTIONS ---
 function rollForSponsorOffer() {
-    // Only get offers once you cross 500 subscribers, and if no offer is currently showing
     if(gameData.subscribers < 500 || !sponsorBox.classList.contains('hidden')) return;
-
-    // 25% chance of trigger per video post
     if(Math.random() < 0.25) {
-        const brandNames = ["Raid: Shadow Gear", "ExpressVPN-ish", "Nordic Wallet", "SquareSpace-Out", "SkillShare-Zone"];
+        const brandNames = ["Raid: Shadow Gear", "ExpressVPN-ish", "Nordic Wallet", "SquareSpace-Out"];
         const chosenBrand = brandNames[Math.floor(Math.random() * brandNames.length)];
-        
-        // Scale payout based on subscriber size
         const payoutOffer = Math.floor(gameData.subscribers * 0.15) + 50;
-
         activeSponsorDeal = { brand: chosenBrand, reward: payoutOffer };
-        sponsorText.innerHTML = `<strong>${chosenBrand}</strong> offers you <strong>$${payoutOffer}</strong> to talk about them in your next video submission.`;
+        sponsorText.innerHTML = `<strong>${chosenBrand}</strong> offers you <strong>$${payoutOffer}</strong> to sponsor your next video.`;
         sponsorBox.classList.remove('hidden');
     }
 }
@@ -122,16 +128,9 @@ function acceptSponsor() {
     if(!activeSponsorDeal) return;
     addLog(`🤝 Contract signed! Your upcoming video will be sponsored by <strong>${activeSponsorDeal.brand}</strong>.`);
     sponsorBox.classList.add('hidden');
-    // Deal stays active variables in memory until next video creation
 }
 
-function declineSponsor() {
-    activeSponsorDeal = null;
-    sponsorBox.classList.add('hidden');
-    addLog("🗑️ You turned down the sponsorship offer.");
-}
-
-// --- CORE ACTION LOGIC ---
+function declineSponsor() { activeSponsorDeal = null; sponsorBox.classList.add('hidden'); }
 function makeVideo() {
     const title = titleInp.value.trim();
     const category = categoryInp.value;
@@ -144,7 +143,6 @@ function makeVideo() {
 
     uploadBtn.disabled = true;
     
-    // 1. BASE STAT CATEGORY SYSTEM MODIFIERS
     let baseViewsMin = 20, baseViewsMax = 80;
     let payPerView = 0.0025; 
 
@@ -153,36 +151,37 @@ function makeVideo() {
     else if (category === "Comedy") { baseViewsMin = 10; baseViewsMax = 150; payPerView = 0.002; } 
     else if (category === "Education") { baseViewsMin = 5; baseViewsMax = 30; payPerView = 0.008; }
 
-    // 2. GEAR MULTIPLIERS
     let viewMultiplier = 1.0;
     if (gameData.upgrades.mic) viewMultiplier += 0.20;
     if (gameData.upgrades.camera) viewMultiplier += 0.50;
 
-    // 3. AUDIENCE DEMAND / TREND VALUE MODIFIER
-    if (category === gameData.currentTrend) { viewMultiplier += 1.50; }
+    // Audience Demand / Trend Check
+    if (category === gameData.currentTrend) { 
+        viewMultiplier += 1.50; 
+        gameData.statsHistory.trendVideos += 1; // Increment history metric
+    }
 
-    // 4. METADATA CHARACTER EFFORT CHECK
     let effortBonus = 1.0;
     if (title.length > 15) effortBonus += 0.15;
     if (desc.length > 40) effortBonus += 0.25;
 
-    // View core generator formulas
     const baseViews = Math.floor(Math.random() * (baseViewsMax - baseViewsMin + 1)) + baseViewsMin;
     const subInfluence = Math.floor(gameData.subscribers * 0.45);
     let newViews = Math.floor((baseViews + subInfluence) * viewMultiplier * effortBonus);
     
-    // NEW: Sponsored video view dampening penalty offset by raw contract cash injections
     let sponsorPayoutBonus = 0;
     if(activeSponsorDeal) {
         sponsorPayoutBonus = activeSponsorDeal.reward;
-        newViews = Math.floor(newViews * 0.85); // -15% view loss penalty due to viewers skipping ads
+        newViews = Math.floor(newViews * 0.85); 
         addLog(`💰 Sponsor Payout! <strong>${activeSponsorDeal.brand}</strong> wired you $${sponsorPayoutBonus}!`);
     }
 
     const newSubs = Math.floor(Math.random() * (newViews * 0.12)); 
     const newMoney = (newViews * payPerView) + sponsorPayoutBonus; 
 
-    // Adjust state metrics
+    // Increments Analytics Category History
+    gameData.statsHistory[category] += 1;
+
     gameData.views += newViews;
     gameData.subscribers += newSubs;
     gameData.money += newMoney;
@@ -193,11 +192,7 @@ function makeVideo() {
     addLog(logMessage);
     
     generateComments(category, newViews);
-
-    // Consume contract space
     activeSponsorDeal = null;
-
-    // Trigger sponsorship odds loop checking mechanism
     rollForSponsorOffer();
 
     if (gameData.totalVideos % 3 === 0) {
@@ -212,7 +207,41 @@ function makeVideo() {
     setTimeout(() => { uploadBtn.disabled = false; }, 1500);
 }
 
-// --- PROCEDURAL COMMENTS GENERATION ---
+// NEW: Analytics Math Renderer Processing Engine
+function updateAnalyticsScreen() {
+    // 1. Calculate Estimated RPM / Growth values
+    const passiveBaseRate = gameData.totalVideos > 0 ? (gameData.subscribers * 0.04) + gameData.totalVideos : 0;
+    const passiveMultiplier = gameData.upgrades.software ? 2.0 : 1.0;
+    const estimatedViewsPerLoop = Math.floor(passiveBaseRate * passiveMultiplier);
+    
+    // Convert 4-second game ticks into hypothetical "Monthly Payouts"
+    const estimatedMonthlyEarnings = estimatedViewsPerLoop * 0.0025 * 30; 
+    document.getElementById('analytics-rpm').textContent = estimatedMonthlyEarnings.toFixed(2);
+
+    // 2. Generate an effort Click-Through-Rate percentage
+    const baseCTR = gameData.upgrades.camera ? 7.4 : 4.2;
+    const randomVariance = (Math.random() * 2.5);
+    document.getElementById('analytics-ctr').textContent = (baseCTR + randomVariance).toFixed(1);
+
+    // 3. Render Graph Progress Bars based on upload distributions
+    const totalCount = gameData.totalVideos || 1; 
+    availableCategories.forEach(cat => {
+        const count = gameData.statsHistory[cat] || 0;
+        const percentage = Math.min(100, Math.floor((count / totalCount) * 100));
+        
+        document.getElementById(`count-${cat.toLowerCase()}`).textContent = count;
+        document.getElementById(`bar-${cat.toLowerCase()}`).style.width = `${percentage}%`;
+    });
+
+    // 4. Calculate Audience retention distributions percentages
+    const trendUploads = gameData.statsHistory.trendVideos || 0;
+    const trendPercentage = Math.min(100, Math.floor((trendUploads / totalCount) * 100));
+    const organicPercentage = 100 - trendPercentage;
+
+    document.getElementById('demo-organic').textContent = `${organicPercentage}%`;
+    document.getElementById('demo-trend').textContent = `${trendPercentage}%`;
+}
+
 function generateComments(category, viewsGenerated) {
     commentsBox.innerHTML = ""; 
     let commentCount = 1;
@@ -249,7 +278,6 @@ function buyUpgrade(item) {
     } else { alert("Insufficient funds!"); }
 }
 
-// --- CHECKING & RENDER ENGINE ---
 function runChecksAndRefresh() {
     checkMilestonesLogic();
     updateUI();
@@ -269,7 +297,6 @@ function checkMilestonesLogic() {
         gameData.milestones.m10000 = true; gameData.money += 1000;
         addLog("🎉 <strong>Milestone!</strong> Reached 10,000 subs! Received the Silver Play Button ($1,000 bonus).");
     }
-    // NEW: Verification logic condition
     if (gameData.subscribers >= 100000 && !gameData.milestones.m100000) {
         gameData.milestones.m100000 = true;
         addLog("🎉 <strong>Milestone!</strong> Reached 100,000 subs! Your channel is now officially verified!");
@@ -297,7 +324,6 @@ function updateUI() {
     videoCountEl.textContent = gameData.totalVideos;
     trendEl.textContent = gameData.currentTrend;
 
-    // Render Verification Badge next to custom Channel Name
     if(gameData.channelName) {
         let badgeHTML = gameData.channelName;
         if(gameData.milestones.m100000) {
@@ -342,6 +368,12 @@ setInterval(() => {
 
         updateUI();
         saveGame();
+        
+        // Dynamic Update if looking at the Analytics view
+        const analyticsPanel = document.getElementById('panel-analytics');
+        if(analyticsPanel && !analyticsPanel.classList.contains('hidden')) {
+            updateAnalyticsScreen();
+        }
     }
 }, 4000);
 

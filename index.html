@@ -8,7 +8,7 @@
 </head>
 <body>
 
-    <!-- NEW: Channel Name Creation Modal Overlay -->
+    <!-- Channel Name Creation Modal Overlay -->
     <div id="name-modal" class="modal-overlay">
         <div class="modal-box">
             <h2>Welcome, Creator!</h2>
@@ -19,10 +19,10 @@
     </div>
 
     <div class="game-container">
-        <!-- NEW: Dynamic Channel Name Header + Verification Badge -->
+        <!-- Dynamic Channel Name Header + Verification Badge -->
         <h1 id="channel-display">YouTube Simulator</h1>
         
-        <!-- Channel Metrics -->
+        <!-- Channel Metrics Summary Panel -->
         <div class="stats-box">
             <div class="stat">Subscribers: <span id="subs">0</span></div>
             <div class="stat">Total Views: <span id="views">0</span></div>
@@ -30,89 +30,110 @@
             <div class="stat">Videos Posted: <span id="video-count">0</span></div>
         </div>
 
-        <!-- NEW: Interactive Sponsorship Notification Box -->
-        <div id="sponsor-box" class="sponsor-banner hidden">
-            <h4>🤝 Urgent Sponsorship Offer!</h4>
-            <p id="sponsor-text">A brand wants to sponsor your next video.</p>
-            <div class="sponsor-buttons">
-                <button id="sponsor-accept" class="btn-green" onclick="acceptSponsor()">Accept Deal</button>
-                <button id="sponsor-decline" class="btn-gray" onclick="declineSponsor()">Decline</button>
-            </div>
+        <!-- NEW: Tab System Navigation Header -->
+        <div class="tab-navigation">
+            <button id="tab-studio" class="tab-btn active" onclick="switchTab('studio')">🎬 Studio</button>
+            <button id="tab-analytics" class="tab-btn" onclick="switchTab('analytics')">📊 Analytics</button>
         </div>
 
-        <!-- Dynamic Algorithm Trend Indicator -->
-        <div class="trend-banner">
-            🔥 Current Trend: <span id="current-trend" class="trend-highlight">Loading...</span>
-            <br><small>(Changes every few uploads. Matching the trend gives +150% views!)</small>
-        </div>
-
-        <!-- Video Production Form -->
-        <div class="studio-box">
-            <h3>🎬 Creator Studio</h3>
-            
-            <label for="video-title">Video Title:</label>
-            <input type="text" id="video-title" placeholder="e.g., I Spent 24 Hours in a Box!">
-
-            <label for="video-category">Category / Topic:</label>
-            <select id="video-category">
-                <option value="Gaming">Gaming (High Views, Low Pay)</option>
-                <option value="Tech">Tech (Medium Views, High Pay)</option>
-                <option value="Vlog">Lifestyle Vlog (Balanced Progress)</option>
-                <option value="Comedy">Comedy Sketch (Viral Potential)</option>
-                <option value="Education">Educational Essay (High Pay, Low Views)</option>
-            </select>
-
-            <label for="video-desc">Description:</label>
-            <textarea id="video-desc" rows="2" placeholder="Tell your viewers about the video..."></textarea>
-            
-            <button id="upload-btn" onclick="makeVideo()">🚀 Upload Video</button>
-        </div>
-
-        <!-- Dynamic Comments Feed Panel -->
-        <div class="comments-section">
-            <h3>💬 Video Comments</h3>
-            <div id="comments-box" class="comments-box">
-                <p class="empty-comment">No comments yet. Post a video to get feedback!</p>
-            </div>
-        </div>
-
-        <!-- Upgrades Shop Section -->
-        <div class="shop-section">
-            <h3>🎥 Gear Shop</h3>
-            <div class="shop-item">
-                <div>
-                    <strong>Better Microphone</strong><br>
-                    <small>+20% Views per video</small>
+        <!-- MAIN CONTAINER: STUDIO PANEL SECTION -->
+        <div id="panel-studio" class="tab-panel">
+            <!-- Sponsorship Notification Box -->
+            <div id="sponsor-box" class="sponsor-banner hidden">
+                <h4>🤝 Urgent Sponsorship Offer!</h4>
+                <p id="sponsor-text">A brand wants to sponsor your next video.</p>
+                <div class="sponsor-buttons">
+                    <button id="sponsor-accept" class="btn-green" onclick="acceptSponsor()">Accept Deal</button>
+                    <button id="sponsor-decline" class="btn-gray" onclick="declineSponsor()">Decline</button>
                 </div>
-                <button id="shop-mic" onclick="buyUpgrade('mic')">Buy ($50)</button>
             </div>
-            <div class="shop-item">
-                <div>
-                    <strong>1080p Camera</strong><br>
-                    <small>+50% Views per video</small>
-                </div>
-                <button id="shop-camera" onclick="buyUpgrade('camera')">Buy ($200)</button>
+
+            <!-- Dynamic Algorithm Trend Indicator -->
+            <div class="trend-banner">
+                🔥 Current Trend: <span id="current-trend" class="trend-highlight">Loading...</span>
+                <br><small>(Changes every few uploads. Matching the trend gives +150% views!)</small>
             </div>
-            <div class="shop-item">
-                <div>
-                    <strong>AI Editing Software</strong><br>
-                    <small>+100% Passive growth</small>
+
+            <!-- Video Production Form -->
+            <div class="studio-box">
+                <h3>🎬 Creator Studio</h3>
+                <label for="video-title">Video Title:</label>
+                <input type="text" id="video-title" placeholder="e.g., I Spent 24 Hours in a Box!">
+
+                <label for="video-category">Category / Topic:</label>
+                <select id="video-category">
+                    <option value="Gaming">Gaming (High Views, Low Pay)</option>
+                    <option value="Tech">Tech (Medium Views, High Pay)</option>
+                    <option value="Vlog">Lifestyle Vlog (Balanced Progress)</option>
+                    <option value="Comedy">Comedy Sketch (Viral Potential)</option>
+                    <option value="Education">Educational Essay (High Pay, Low Views)</option>
+                </select>
+
+                <label for="video-desc">Description:</label>
+                <textarea id="video-desc" rows="2" placeholder="Tell your viewers about the video..."></textarea>
+                <button id="upload-btn" onclick="makeVideo()">🚀 Upload Video</button>
+            </div>
+
+            <!-- Dynamic Comments Feed Panel -->
+            <div class="comments-section">
+                <h3>💬 Video Comments</h3>
+                <div id="comments-box" class="comments-box">
+                    <p class="empty-comment">No comments yet. Post a video to get feedback!</p>
                 </div>
-                <button id="shop-software" onclick="buyUpgrade('software')">Buy ($500)</button>
+            </div>
+
+            <!-- Upgrades Shop Section -->
+            <div class="shop-section">
+                <h3>🎥 Gear Shop</h3>
+                <div class="shop-item">
+                    <div><strong>Better Microphone</strong><br><small>+20% Views per video</small></div>
+                    <button id="shop-mic" onclick="buyUpgrade('mic')">Buy ($50)</button>
+                </div>
+                <div class="shop-item">
+                    <div><strong>1080p Camera</strong><br><small>+50% Views per video</small></div>
+                    <button id="shop-camera" onclick="buyUpgrade('camera')">Buy ($200)</button>
+                </div>
+                <div class="shop-item">
+                    <div><strong>AI Editing Software</strong><br><small>+100% Passive growth</small></div>
+                    <button id="shop-software" onclick="buyUpgrade('software')">Buy ($500)</button>
+                </div>
+            </div>
+
+            <!-- Milestone Panel -->
+            <div class="milestones-section">
+                <h3>🏆 Channel Milestones</h3>
+                <div class="milestone-badge locked" id="m-100">🚫 100 Subs: Getting Started</div>
+                <div class="milestone-badge locked" id="m-1000">🚫 1,000 Subs: Partner Program</div>
+                <div class="milestone-badge locked" id="m-10000">🚫 10,000 Subs: Silver Play Button</div>
+                <div class="milestone-badge locked" id="m-100000">🚫 100,000 Subs: Verified Badge Verification</div>
             </div>
         </div>
 
-        <!-- Milestone Panel -->
-        <div class="milestones-section">
-            <h3>🏆 Channel Milestones</h3>
-            <div class="milestone-badge locked" id="m-100">🚫 100 Subs: Getting Started</div>
-            <div class="milestone-badge locked" id="m-1000">🚫 1,000 Subs: Partner Program</div>
-            <div class="milestone-badge locked" id="m-10000">🚫 10,000 Subs: Silver Play Button</div>
-            <!-- NEW: Verification Checkmark Checkpoint -->
-            <div class="milestone-badge locked" id="m-100000">🚫 100,000 Subs: Verification Badge Verification</div>
+        <!-- NEW SECONDARY CONTAINER: ANALYTICS PANEL SECTION -->
+        <div id="panel-analytics" class="tab-panel hidden">
+            <div class="analytics-card">
+                <h3>📊 Real-Time Analytics Dashboard</h3>
+                <p class="analytics-stat">Estimated Monthly Revenue: <strong class="text-green">$<span id="analytics-rpm">0.00</span></strong></p>
+                <p class="analytics-stat">Audience Click-Through Rate (CTR): <strong><span id="analytics-ctr">0.0</span>%</strong></p>
+                
+                <h4 style="margin-top: 20px; margin-bottom: 5px;">Category Breakdown (Videos Count)</h4>
+                <div class="chart-container">
+                    <div class="chart-row"><span>Gaming:</span><div class="chart-bar-bg"><div id="bar-gaming" class="chart-bar" style="width: 0%;"></div></div><span id="count-gaming" class="chart-num">0</span></div>
+                    <div class="chart-row"><span>Tech:</span><div class="chart-bar-bg"><div id="bar-tech" class="chart-bar" style="width: 0%;"></div></div><span id="count-tech" class="chart-num">0</span></div>
+                    <div class="chart-row"><span>Vlog:</span><div class="chart-bar-bg"><div id="bar-vlog" class="chart-bar" style="width: 0%;"></div></div><span id="count-vlog" class="chart-num">0</span></div>
+                    <div class="chart-row"><span>Comedy:</span><div class="chart-bar-bg"><div id="bar-comedy" class="chart-bar" style="width: 0%;"></div></div><span id="count-comedy" class="chart-num">0</span></div>
+                    <div class="chart-row"><span>Education:</span><div class="chart-bar-bg"><div id="bar-education" class="chart-bar" style="width: 0%;"></div></div><span id="count-education" class="chart-num">0</span></div>
+                </div>
+
+                <div class="audience-demographics">
+                    <h4>👥 Audience Retention Mix</h4>
+                    <p>• Organic Subscribers: <strong id="demo-organic">0%</strong></p>
+                    <p>• Viral Trend Chasers: <strong id="demo-trend">0%</strong></p>
+                </div>
+            </div>
         </div>
 
-        <!-- Activity Feed -->
+        <!-- Activity Feed Footer Component -->
         <h3>Activity Log</h3>
         <div class="log-box" id="log">
             <p>Welcome back to your creator studio.</p>

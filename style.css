@@ -340,3 +340,127 @@ button:disabled {
     color: #ff0000;
     background: transparent;
 }
+
+/* Keep your previous styles completely intact, append these to the bottom */
+
+/* NEW: Navigation Switch Elements */
+.tab-navigation {
+    display: flex;
+    background: #eee;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 15px;
+    gap: 4px;
+}
+
+.tab-btn {
+    background: transparent;
+    color: #555;
+    border-radius: 6px;
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0;
+}
+
+.tab-btn:hover {
+    background: rgba(255,255,255,0.5);
+    color: #000;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #ff0000;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.tab-panel.hidden {
+    display: none !important;
+}
+
+/* NEW: Analytics Board Cards Layout */
+.analytics-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.analytics-card h3 {
+    margin-top: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.analytics-stat {
+    font-size: 15px;
+    margin: 8px 0;
+}
+
+.text-green {
+    color: #28a745;
+}
+
+/* NEW: Custom Pure CSS Graphical Chart Grid Components */
+.chart-container {
+    margin: 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chart-row {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.chart-row span {
+    width: 75px;
+}
+
+.chart-bar-bg {
+    flex-grow: 1;
+    background: #f0f0f0;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    margin: 0 10px;
+}
+
+.chart-bar {
+    background: #ff0000;
+    height: 100%;
+    width: 0%;
+    border-radius: 7px;
+    transition: width 0.4s ease-out;
+}
+
+.chart-num {
+    width: 25px !important;
+    text-align: right;
+}
+
+.audience-demographics {
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 6px;
+    margin-top: 15px;
+    border: 1px dashed #ccc;
+}
+
+.audience-demographics h4 {
+    margin: 0 0 5px 0;
+    font-size: 13px;
+}
+
+.audience-demographics p {
+    margin: 4px 0;
+    font-size: 12px;
+    color: #555;
+}
