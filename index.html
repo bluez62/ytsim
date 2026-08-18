@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header Navbar -->
+    <header class="navbar">
+        <div class="logo">FakeTube</div>
+        <input type="text" placeholder="Search" class="search-bar">
+        <div class="user-profile">👤</div>
+    </header>
+
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="#">🏠 Home</a>
+            <a href="#">🩳 Shorts</a>
+            <a href="#">📺 Subscriptions</a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <!-- Video Player Screen -->
+            <div class="video-player-container">
+                <video id="main-video" controls src="https://w3schools.com"></video>
+                <h1 id="video-title">Big Buck Bunny (Sample Video)</h1>
+                <div class="video-actions">
+                    <button id="like-btn">👍 <span id="like-count">124</span></button>
+                    <button id="sub-btn">Subscribe</button>
+                </div>
+            </div>
+
+            <!-- Recommendation Feed -->
+            <div class="video-feed" id="video-feed">
+                <!-- JavaScript will populate thumbnails here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
