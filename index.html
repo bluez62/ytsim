@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Creator Simulator</title>
+    <title>YouTube Creator Simulator Pro</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,7 +19,13 @@
             <div class="stat">Videos Posted: <span id="video-count">0</span></div>
         </div>
 
-        <!-- NEW: Video Production Form -->
+        <!-- NEW: Dynamic Algorithm Trend Indicator -->
+        <div class="trend-banner">
+            🔥 Current Trend: <span id="current-trend" class="trend-highlight">Loading...</span>
+            <br><small>(Changes every few uploads. Matching the trend gives +150% views!)</small>
+        </div>
+
+        <!-- Video Production Form -->
         <div class="studio-box">
             <h3>🎬 Creator Studio</h3>
             
@@ -28,17 +34,25 @@
 
             <label for="video-category">Category / Topic:</label>
             <select id="video-category">
-                <option value="Gaming">Gaming Let's Play</option>
-                <option value="Tech">Tech Review</option>
-                <option value="Vlog">Lifestyle Vlog</option>
-                <option value="Comedy">Comedy Sketch</option>
-                <option value="Education">Educational Essay</option>
+                <option value="Gaming">Gaming (High Views, Low Pay)</option>
+                <option value="Tech">Tech (Medium Views, High Pay)</option>
+                <option value="Vlog">Lifestyle Vlog (Balanced Progress)</option>
+                <option value="Comedy">Comedy Sketch (Viral Potential)</option>
+                <option value="Education">Educational Essay (High Pay, Low Views)</option>
             </select>
 
             <label for="video-desc">Description:</label>
             <textarea id="video-desc" rows="2" placeholder="Tell your viewers about the video..."></textarea>
             
             <button id="upload-btn" onclick="makeVideo()">🚀 Upload Video</button>
+        </div>
+
+        <!-- NEW: Dynamic Comments Feed Panel -->
+        <div class="comments-section">
+            <h3>💬 Video Comments</h3>
+            <div id="comments-box" class="comments-box">
+                <p class="empty-comment">No comments yet. Post a video to get feedback!</p>
+            </div>
         </div>
 
         <!-- Upgrades Shop Section -->
@@ -61,7 +75,7 @@
             <div class="shop-item">
                 <div>
                     <strong>AI Editing Software</strong><br>
-                    <small>+100% Passive channel growth</small>
+                    <small>+100% Passive growth</small>
                 </div>
                 <button id="shop-software" onclick="buyUpgrade('software')">Buy ($500)</button>
             </div>

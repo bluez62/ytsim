@@ -4,6 +4,7 @@ let gameData = {
     views: 0,
     money: 0.00,
     totalVideos: 0,
+    currentTrend: "Gaming",
     upgrades: {
         mic: false,
         camera: false,
@@ -16,11 +17,8 @@ let gameData = {
     }
 };
 
-const prices = {
-    mic: 50,
-    camera: 200,
-    software: 500
-};
+const prices = { mic: 50, camera: 200, software: 500 };
+const availableCategories = ["Gaming", "Tech", "Vlog", "Comedy", "Education"];
 
 // DOM Node References
 const subsEl = document.getElementById('subs');
@@ -29,41 +27,68 @@ const moneyEl = document.getElementById('money');
 const videoCountEl = document.getElementById('video-count');
 const logEl = document.getElementById('log');
 const uploadBtn = document.getElementById('upload-btn');
+const trendEl = document.getElementById('current-trend');
+const commentsBox = document.getElementById('comments-box');
 
-// NEW: Input Field DOM References
+// Input Field DOM References
 const titleInp = document.getElementById('video-title');
 const categoryInp = document.getElementById('video-category');
 const descInp = document.getElementById('video-desc');
 
+// Comment components vocabulary arrays for procedural generation
+const commentUsernames = ["AlphaGamer", "TechReviewer99", "Sarah_Vlogs", "CouchPotato", "StudyBuddy", "MemeLord", "NoobMaster", "QuantumThinker"];
+const genericComments = {
+    positive: ["Wow, great production quality!", "Subbed! Can't wait for the next video.", "This deserves way more views.", "Incredible video, keep it up!"],
+    negative: ["Clickbait layout...", "The audio sounds a bit fuzzy.", "Unsubbing after this one.", "Meh, I've seen better videos on this."]
+};
+const categoryComments = {
+    Gaming: ["Insane gameplay clutch right there!", "What platform are you playing on?", "Let's do a co-op stream sometime!"],
+    Tech: ["Is this gear worth upgrading to?", "Great specs breakdown.", "My budget cannot afford this device right now."],
+    Vlog: ["Your lifestyle setup looks so cozy!", "Thanks for sharing your day with us.", "Loved the background background music tracks."],
+    Comedy: ["I literally burst out laughing at the end!", "Top tier comedic timing.", "This script layout is pure gold."],
+    Education: ["Wow, I actually learned a lot from this essay.", "Clear explanations, thanks teacher!", "Mind-blowing perspective context."]
+};
+
 // --- LOCAL STORAGE LOGIC ---
 function saveGame() {
-    localStorage.setItem('youtubeSimulatorSave', JSON.stringify(gameData));
+    localStorage.setItem('youtubeSimulatorSavePro', JSON.stringify(gameData));
 }
 
 function loadGame() {
-    const savedData = localStorage.getItem('youtubeSimulatorSave');
+    const savedData = localStorage.getItem('youtubeSimulatorSavePro');
     if (savedData) {
         gameData = JSON.parse(savedData);
-        updateUI();
-        checkMilestonesVisuals();
+    } else {
+        updateTrend(); // Pick an initial trend if no save file exists
     }
+    updateUI();
+    checkMilestonesVisuals();
 }
 
 function resetGame() {
     if(confirm("Are you sure you want to delete your entire channel progress?")) {
-        localStorage.removeItem('youtubeSimulatorSave');
+        localStorage.removeItem('youtubeSimulatorSavePro');
         location.reload();
     }
 }
 
+// --- DYNAMIC TREND SYSTEM ---
+function updateTrend() {
+    const currentIndex = availableCategories.indexOf(gameData.currentTrend);
+    let nextIndex;
+    do {
+        nextIndex = Math.floor(Math.random() * availableCategories.length);
+    } while (nextIndex === currentIndex); // Ensure the trend actually changes
+    
+    gameData.currentTrend = availableCategories[nextIndex];
+}
+
 // --- CORE ACTION LOGIC ---
 function makeVideo() {
-    // Read input values
     const title = titleInp.value.trim();
     const category = categoryInp.value;
     const desc = descInp.value.trim();
 
-    // Form Validation: Don't let them upload an empty form
     if (title === "" || desc === "") {
         alert("⚠️ You must fill out both the Title and Description before uploading your video!");
         return;
@@ -71,47 +96,105 @@ function makeVideo() {
 
     uploadBtn.disabled = true;
     
-    // Calculate Multipliers based on equipment bought
+    // 1. BASE STAT CATEGORY SYSTEM MODIFIERS
+    let baseViewsMin = 20, baseViewsMax = 80;
+    let payPerView = 0.0025; // CPM rate base
+
+    if (category === "Gaming") {
+        baseViewsMin = 50; baseViewsMax = 120; // High reach volume
+        payPerView = 0.001;                   // Low payout conversion
+    } else if (category === "Tech") {
+        baseViewsMin = 20; baseViewsMax = 60;
+        payPerView = 0.006;                   // Premium tech advertiser ads
+    } else if (category === "Comedy") {
+        baseViewsMin = 10; baseViewsMax = 150; // Highly chaotic volatility
+        payPerView = 0.002;
+    } else if (category === "Education") {
+        baseViewsMin = 5; baseViewsMax = 30;   // Niche baseline exposure
+        payPerView = 0.008;                   // Maximum informational advertiser CPM
+    }
+
+    // 2. GEAR MULTIPLIERS
     let viewMultiplier = 1.0;
     if (gameData.upgrades.mic) viewMultiplier += 0.20;
     if (gameData.upgrades.camera) viewMultiplier += 0.50;
 
-    // ALGORITHM BONUS: Rewards longer titles and descriptions (up to +30% extra views)
-    let effortBonus = 1.0;
-    if (title.length > 10) effortBonus += 0.10;
-    if (desc.length > 30) effortBonus += 0.20;
+    // 3. AUDIENCE DEMAND / TREND VALUE MODIFIER
+    if (category === gameData.currentTrend) {
+        viewMultiplier += 1.50; // Huge 150% viewership boost if matching trend
+    }
 
-    // View calculation math formula
-    const baseViews = Math.floor(Math.random() * 80) + 20;
-    const subInfluence = Math.floor(gameData.subscribers * 0.4);
+    // 4. METADATA CHARACTER EFFORT CHECK
+    let effortBonus = 1.0;
+    if (title.length > 15) effortBonus += 0.15;
+    if (desc.length > 40) effortBonus += 0.25;
+
+    // View core generator formulas
+    const baseViews = Math.floor(Math.random() * (baseViewsMax - baseViewsMin + 1)) + baseViewsMin;
+    const subInfluence = Math.floor(gameData.subscribers * 0.45);
     const newViews = Math.floor((baseViews + subInfluence) * viewMultiplier * effortBonus);
     
-    // Conversion metrics
+    // Sub conversion scales directly off total views generated
     const newSubs = Math.floor(Math.random() * (newViews * 0.12)); 
-    const newMoney = (newViews * 0.0025); 
+    const newMoney = (newViews * payPerView); 
 
-    // Update state variables
+    // Adjust state metrics
     gameData.views += newViews;
     gameData.subscribers += newSubs;
     gameData.money += newMoney;
     gameData.totalVideos += 1;
 
-    // Create a personalized message log showing their actual title and category
-    addLog(`🚀 Uploaded a <strong>[${category}]</strong> video titled "<em>${title}</em>". It brought in +${newViews.toLocaleString()} views and +${newSubs.toLocaleString()} subscribers!`);
+    addLog(`🚀 Uploaded: "<em>${title}</em>" (${category}). Views: +${newViews.toLocaleString()} | Earnings: +$${newMoney.toFixed(2)}`);
     
-    // Clear out the form text inputs for the next video
+    // Generate AI Comments based on the data context
+    generateComments(category, newViews);
+
+    // Randomize trend every 3 uploads
+    if (gameData.totalVideos % 3 === 0) {
+        updateTrend();
+        addLog(`📉 <strong>Algorithm Update:</strong> The audience interests have shifted!`);
+    }
+
     titleInp.value = "";
     descInp.value = "";
 
     runChecksAndRefresh();
-
-    // 1.5 second render cooldown
     setTimeout(() => { uploadBtn.disabled = false; }, 1500);
+}
+
+// --- NEW: PROCEDURAL COMMENTS GENERATION ---
+function generateComments(category, viewsGenerated) {
+    commentsBox.innerHTML = ""; // Clear last feed container contents
+    
+    // Determine number of comments based on performance tier
+    let commentCount = 1;
+    if (viewsGenerated > 50) commentCount = 2;
+    if (viewsGenerated > 200) commentCount = 3;
+    if (viewsGenerated > 1000) commentCount = 4;
+
+    for (let i = 0; i < commentCount; i++) {
+        const username = commentUsernames[Math.floor(Math.random() * commentUsernames.length)] + Math.floor(Math.random() * 99);
+        
+        // Randomly pick context text block from general pools or category arrays
+        let textPool = [...categoryComments[category]];
+        if (Math.random() > 0.5) {
+            textPool = textPool.concat(gameData.upgrades.mic ? genericComments.positive : genericComments.negative);
+        } else {
+            textPool = textPool.concat(genericComments.positive);
+        }
+
+        const randomCommentText = textPool[Math.floor(Math.random() * textPool.length)];
+
+        // Append to UI component container layout
+        const commentDiv = document.createElement('div');
+        commentDiv.className = "comment-item";
+        commentDiv.innerHTML = `<span class="comment-user">@${username}:</span> <span class="comment-text">${randomCommentText}</span>`;
+        commentsBox.appendChild(commentDiv);
+    }
 }
 
 function buyUpgrade(item) {
     const cost = prices[item];
-    
     if (gameData.money >= cost && !gameData.upgrades[item]) {
         gameData.money -= cost;
         gameData.upgrades[item] = true;
@@ -124,7 +207,7 @@ function buyUpgrade(item) {
     }
 }
 
-// --- CHECKING SYSTEM ---
+// --- CHECKING & RENDER ENGINE ---
 function runChecksAndRefresh() {
     checkMilestonesLogic();
     updateUI();
@@ -162,12 +245,12 @@ function updateBadge(id, text) {
     el.textContent = text;
 }
 
-// --- RENDER & ENGINE LOOPS ---
 function updateUI() {
     subsEl.textContent = gameData.subscribers.toLocaleString();
     viewsEl.textContent = gameData.views.toLocaleString();
     moneyEl.textContent = gameData.money.toFixed(2);
     videoCountEl.textContent = gameData.totalVideos;
+    trendEl.textContent = gameData.currentTrend;
 
     updateShopButton('mic');
     updateShopButton('camera');
