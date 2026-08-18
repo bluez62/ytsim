@@ -12,6 +12,22 @@
         <div class="logo">FakeTube</div>
         <input type="text" placeholder="Search" class="search-bar">
         <div class="user-profile">👤</div>
+        <button id="upload-nav-btn" class="upload-btn">➕ Create</button>
+
+        <!-- Add this upload form right above the </main> tag -->
+        <div id="upload-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>Upload a Video</h3>
+                <input type="text" id="new-title" placeholder="Video Title" required>
+                <input type="text" id="new-url" placeholder="Video File URL (.mp4)" required>
+                <input type="text" id="new-thumb" placeholder="Thumbnail Image URL">
+                <div class="modal-actions">
+                    <button id="submit-video-btn">Publish</button>
+                    <button id="close-modal-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
     </header>
 
     <div class="main-container">
